@@ -1,5 +1,5 @@
 import { Address, BigDecimal, BigInt, ethereum } from '@graphprotocol/graph-ts'
-import { beforeAll, describe, test } from 'matchstick-as'
+import { assert, beforeAll, beforeEach, clearStore, describe, test } from 'matchstick-as'
 
 import { handleSwapHelper } from '../src/mappings/pool/swap'
 import { Bundle, Token } from '../src/types/schema'
@@ -258,6 +258,174 @@ describe('handleSwap', () => {
       ['volumeETH', amountTotalETHTRacked.toString()],
       ['feesUSD', feesUSD.toString()],
       ['feesETH', feesETH.toString()],
+      ['txCount', '1'],
+      ['firstTradeTimestamp', MOCK_EVENT.block.timestamp.toString()],
+      ['lastTradeTimestamp', MOCK_EVENT.block.timestamp.toString()],
+    ])
+  })
+})
+
+describe('UserTradeStats', () => {
+  beforeEach(() => {
+    clearStore()
+    invokePoolCreatedWithMockedEthCalls(MOCK_EVENT, TEST_CONFIG)
+
+    const bundle = new Bundle('1')
+    bundle.ethPriceUSD = TEST_ETH_PRICE_USD
+    bundle.save()
+
+    const usdcEntity = Token.load(USDC_MAINNET_FIXTURE.address)!
+    usdcEntity.derivedETH = TEST_USDC_DERIVED_ETH
+    usdcEntity.save()
+
+    const wethEntity = Token.load(WETH_MAINNET_FIXTURE.address)!
+    wethEntity.derivedETH = TEST_WETH_DERIVED_ETH
+    wethEntity.save()
+  })
+  test('accumulates multiple swaps correctly', () => {
+    const USER_1_SWAP_1_EVENT = SWAP_EVENT;
+
+    const USER_2_SWAP_1_EVENT = new Swap(
+      Address.fromString(USDC_WETH_03_MAINNET_POOL),
+      MOCK_EVENT.logIndex,
+      MOCK_EVENT.transactionLogIndex,
+      MOCK_EVENT.logType,
+      MOCK_EVENT.block,
+      MOCK_EVENT.transaction,
+      [
+        new ethereum.EventParam('sender', ethereum.Value.fromAddress(Address.fromString('0x1234567890123456789012345678901234567890'))),
+        new ethereum.EventParam('recipient', ethereum.Value.fromAddress(SWAP_FIXTURE.recipient)),
+        new ethereum.EventParam('amount0', ethereum.Value.fromUnsignedBigInt(SWAP_FIXTURE.amount0)),
+        new ethereum.EventParam('amount1', ethereum.Value.fromUnsignedBigInt(SWAP_FIXTURE.amount1)),
+        new ethereum.EventParam('sqrtPriceX96', ethereum.Value.fromUnsignedBigInt(SWAP_FIXTURE.sqrtPriceX96)),
+        new ethereum.EventParam('liquidity', ethereum.Value.fromUnsignedBigInt(SWAP_FIXTURE.liquidity)),
+        new ethereum.EventParam('tick', ethereum.Value.fromI32(SWAP_FIXTURE.tick)),
+      ],
+      MOCK_EVENT.receipt,
+    )
+
+    const laterTimestamp = MOCK_EVENT.block.timestamp.plus(BigInt.fromI32(3600))
+    const laterBlock = new ethereum.Block(
+      MOCK_EVENT.block.hash,
+      MOCK_EVENT.block.parentHash,
+      MOCK_EVENT.block.unclesHash,
+      MOCK_EVENT.block.author,
+      MOCK_EVENT.block.stateRoot,
+      MOCK_EVENT.block.transactionsRoot,
+      MOCK_EVENT.block.receiptsRoot,
+      MOCK_EVENT.block.number,
+      MOCK_EVENT.block.gasUsed,
+      MOCK_EVENT.block.gasLimit,
+      laterTimestamp,
+      MOCK_EVENT.block.difficulty,
+      MOCK_EVENT.block.totalDifficulty,
+      MOCK_EVENT.block.size,
+      MOCK_EVENT.block.baseFeePerGas
+    )
+
+    const USER_1_SWAP_2_EVENT = new Swap(
+      Address.fromString(USDC_WETH_03_MAINNET_POOL),
+      MOCK_EVENT.logIndex,
+      MOCK_EVENT.transactionLogIndex,
+      MOCK_EVENT.logType,
+      laterBlock,
+      MOCK_EVENT.transaction,
+      [
+        new ethereum.EventParam('sender', ethereum.Value.fromAddress(SWAP_FIXTURE.sender)),
+        new ethereum.EventParam('recipient', ethereum.Value.fromAddress(SWAP_FIXTURE.recipient)),
+        new ethereum.EventParam('amount0', ethereum.Value.fromUnsignedBigInt(SWAP_FIXTURE.amount0.times(BigInt.fromI32(2)))),
+        new ethereum.EventParam('amount1', ethereum.Value.fromUnsignedBigInt(SWAP_FIXTURE.amount1.times(BigInt.fromI32(2)))),
+        new ethereum.EventParam('sqrtPriceX96', ethereum.Value.fromUnsignedBigInt(SWAP_FIXTURE.sqrtPriceX96)),
+        new ethereum.EventParam('liquidity', ethereum.Value.fromUnsignedBigInt(SWAP_FIXTURE.liquidity)),
+        new ethereum.EventParam('tick', ethereum.Value.fromI32(SWAP_FIXTURE.tick)),
+      ],
+      MOCK_EVENT.receipt,
+    )
+
+    const amount0 = convertTokenToDecimal(SWAP_FIXTURE.amount0, BigInt.fromString(USDC_MAINNET_FIXTURE.decimals))
+    const amount1 = convertTokenToDecimal(SWAP_FIXTURE.amount1, BigInt.fromString(WETH_MAINNET_FIXTURE.decimals))
+    const amount0Abs = amount0.lt(ZERO_BD) ? amount0.times(BigDecimal.fromString('-1')) : amount0
+    const amount1Abs = amount1.lt(ZERO_BD) ? amount1.times(BigDecimal.fromString('-1')) : amount1
+
+    const token0 = Token.load(USDC_MAINNET_FIXTURE.address)!
+    const token1 = Token.load(WETH_MAINNET_FIXTURE.address)!
+    const amountTotalUSDTracked_1_1 = getTrackedAmountUSD(
+      amount0Abs,
+      token0,
+      amount1Abs,
+      token1,
+      TEST_CONFIG.whitelistTokens,
+    ).div(BigDecimal.fromString('2'))
+    const amountTotalETHTracked_1_1 = safeDiv(amountTotalUSDTracked_1_1, TEST_ETH_PRICE_USD)
+    const feeTierBD = BigDecimal.fromString(POOL_FEE_TIER_03.toString())
+    const feesETH_1_1 = amountTotalETHTracked_1_1.times(feeTierBD).div(BigDecimal.fromString('1000000'))
+    const feesUSD_1_1 = amountTotalUSDTracked_1_1.times(feeTierBD).div(BigDecimal.fromString('1000000'))
+
+    handleSwapHelper(USER_1_SWAP_1_EVENT, TEST_CONFIG)
+    assertObjectMatches('UserTradeStats', SWAP_FIXTURE.sender.toHexString(), [
+      ['volumeUSD', amountTotalUSDTracked_1_1.toString()],
+      ['volumeETH', amountTotalETHTracked_1_1.toString()],
+      ['feesUSD', feesUSD_1_1.toString()],
+      ['feesETH', feesETH_1_1.toString()],
+      ['txCount', '1'],
+      ['firstTradeTimestamp', MOCK_EVENT.block.timestamp.toString()],
+      ['lastTradeTimestamp', MOCK_EVENT.block.timestamp.toString()],
+    ])
+
+    const token0AfterFirstSwap = Token.load(USDC_MAINNET_FIXTURE.address)!
+    const token1AfterFirstSwap = Token.load(WETH_MAINNET_FIXTURE.address)!
+    const ethPriceAfterFirstSwap = getNativePriceInUSD(USDC_WETH_03_MAINNET_POOL, true)
+    const amountTotalUSDTracked_2_1 = getTrackedAmountUSD(
+      amount0Abs,
+      token0AfterFirstSwap,
+      amount1Abs,
+      token1AfterFirstSwap,
+      TEST_CONFIG.whitelistTokens,
+    ).div(BigDecimal.fromString('2'))
+    const amountTotalETHTracked_2_1 = safeDiv(amountTotalUSDTracked_2_1, ethPriceAfterFirstSwap)
+    const feesETH_2_1 = amountTotalETHTracked_2_1.times(feeTierBD).div(BigDecimal.fromString('1000000'))
+    const feesUSD_2_1 = amountTotalUSDTracked_2_1.times(feeTierBD).div(BigDecimal.fromString('1000000'))
+
+    handleSwapHelper(USER_2_SWAP_1_EVENT, TEST_CONFIG)
+    assertObjectMatches('UserTradeStats', '0x1234567890123456789012345678901234567890', [
+      ['volumeUSD', amountTotalUSDTracked_2_1.toString()],
+      ['volumeETH', amountTotalETHTracked_2_1.toString()],
+      ['feesUSD', feesUSD_2_1.toString()],
+      ['feesETH', feesETH_2_1.toString()],
+      ['txCount', '1'],
+      ['firstTradeTimestamp', MOCK_EVENT.block.timestamp.toString()],
+      ['lastTradeTimestamp', MOCK_EVENT.block.timestamp.toString()],
+    ])
+
+    const token0AfterSecondSwap = Token.load(USDC_MAINNET_FIXTURE.address)!
+    const token1AfterSecondSwap = Token.load(WETH_MAINNET_FIXTURE.address)!
+    const ethPriceAfterSecondSwap = getNativePriceInUSD(USDC_WETH_03_MAINNET_POOL, true)
+    const amountTotalUSDTracked_1_2 = getTrackedAmountUSD(
+      amount0Abs.times(BigDecimal.fromString('2')),
+      token0AfterSecondSwap,
+      amount1Abs.times(BigDecimal.fromString('2')),
+      token1AfterSecondSwap,
+      TEST_CONFIG.whitelistTokens,
+    ).div(BigDecimal.fromString('2'))
+    const amountTotalETHTracked_1_2 = safeDiv(amountTotalUSDTracked_1_2, ethPriceAfterSecondSwap)
+    const feesETH_1_2 = amountTotalETHTracked_1_2.times(feeTierBD).div(BigDecimal.fromString('1000000'))
+    const feesUSD_1_2 = amountTotalUSDTracked_1_2.times(feeTierBD).div(BigDecimal.fromString('1000000'))
+
+    handleSwapHelper(USER_1_SWAP_2_EVENT, TEST_CONFIG)
+    assertObjectMatches('UserTradeStats', SWAP_FIXTURE.sender.toHexString(), [
+      ['volumeUSD', amountTotalUSDTracked_1_1.plus(amountTotalUSDTracked_1_2).toString()],
+      ['volumeETH', amountTotalETHTracked_1_1.plus(amountTotalETHTracked_1_2).toString()],
+      ['feesUSD', feesUSD_1_1.plus(feesUSD_1_2).toString()],
+      ['feesETH', feesETH_1_1.plus(feesETH_1_2).toString()],
+      ['txCount', '2'],
+      ['firstTradeTimestamp', MOCK_EVENT.block.timestamp.toString()],
+      ['lastTradeTimestamp', laterTimestamp.toString()],
+    ])
+    assertObjectMatches('UserTradeStats', '0x1234567890123456789012345678901234567890', [
+      ['volumeUSD', amountTotalUSDTracked_2_1.toString()],
+      ['volumeETH', amountTotalETHTracked_2_1.toString()],
+      ['feesUSD', feesUSD_2_1.toString()],
+      ['feesETH', feesETH_2_1.toString()],
       ['txCount', '1'],
       ['firstTradeTimestamp', MOCK_EVENT.block.timestamp.toString()],
       ['lastTradeTimestamp', MOCK_EVENT.block.timestamp.toString()],
