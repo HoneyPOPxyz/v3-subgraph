@@ -1,7 +1,7 @@
 import { BigInt } from '@graphprotocol/graph-ts'
 
-import { Bundle, Pool, Token } from '../../types/schema'
-import { Initialize } from '../../types/templates/Pool/Pool'
+import { Bundle, Pool, Token } from '../../../generated/schema'
+import { Initialize } from '../../../generated/templates/Pool/Pool'
 import { getSubgraphConfig, SubgraphConfig } from '../../utils/chains'
 import { updatePoolDayData, updatePoolHourData } from '../../utils/intervalUpdates'
 import { findNativePerToken, getNativePriceInUSD } from '../../utils/pricing'
