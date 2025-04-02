@@ -462,7 +462,7 @@ export function getSubgraphConfig(): SubgraphConfig {
     return {
       factoryAddress: '0x1511bb1fc5b38c83f9e0034be2c14f1a0038d93a',
       stablecoinWrappedNativePoolAddress: '0x94446ffc0b32a4df47a2e2fcacb70714f33fd694', // USDC/WETH 0.01% pool
-      stablecoinIsToken0: true,
+      stablecoinIsToken0: false,
       wrappedNativeAddress: '0x5300000000000000000000000000000000000004', // WETH
       minimumNativeLocked: BigDecimal.fromString('1'),
       stablecoinAddresses: [
