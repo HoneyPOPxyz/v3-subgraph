@@ -1,5 +1,5 @@
 {
-  "name": "honeypop-subgraph-scroll-sepolia",
+  "name": "v3-subgraph-sepolia",
   "version": "1.0.0",
   "repository": "https://github.com/graphprotocol/uniswap-v3-subgraph",
   "license": "GPL-3.0-or-later",
