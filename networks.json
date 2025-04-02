@@ -77,10 +77,10 @@
       "startBlock": 3518270
     }
   },
-  "scroll-sepolia": {
+  "scroll-mainnet": {
     "Factory": {
-      "address": "0x1511BB1fc5B38C83f9E0034Be2c14f1A0038d93a",
-      "startBlock": 8179106
+      "address": "0x1d25AF2b0992bf227b350860Ea80Bad47382CAf6",
+      "startBlock": 14223998
     }
   }
 }

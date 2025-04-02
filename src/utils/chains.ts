@@ -17,7 +17,7 @@ export enum ChainId {
   ZORA_MAINNET = 7777777,
   WORLDCHAIN_MAINNET = 480,
   SEPOLIA = 11155111,
-  SCROLL_SEPOLIA = 534351,
+  SCROLL = 534352,
 }
 
 // subgraph does not support string enums, hence these constants
@@ -34,7 +34,7 @@ const ZKSYNC_ERA_NETWORK_NAME = 'zksync-era'
 const ZORA_MAINNET_NETWORK_NAME = 'zora-mainnet'
 const WORLDCHAIN_MAINNET_NETWORK_NAME = 'worldchain-mainnet'
 const SEPOLIA_NETWORK_NAME = 'sepolia'
-const SCROLL_SEPOLIA_NETWORK_NAME = 'scroll-sepolia'
+const SCROLL_NETWORK_NAME = 'scroll-mainnet'
 
 // Note: All token and pool addresses should be lowercased!
 export class SubgraphConfig {
@@ -458,19 +458,23 @@ export function getSubgraphConfig(): SubgraphConfig {
       poolsToSkip: [],
       poolMappings: [],
     }
-  } else if (selectedNetwork == SCROLL_SEPOLIA_NETWORK_NAME) {
+  } else if (selectedNetwork == SCROLL_NETWORK_NAME) {
     return {
-      factoryAddress: '0x1511bb1fc5b38c83f9e0034be2c14f1a0038d93a',
-      stablecoinWrappedNativePoolAddress: '0x94446ffc0b32a4df47a2e2fcacb70714f33fd694', // USDC/WETH 0.01% pool
+      factoryAddress: '0x1d25AF2b0992bf227b350860Ea80Bad47382CAf6',
+      stablecoinWrappedNativePoolAddress: '0x3eBF5717d34c363dFB29e14466B33DeAc8dda5E3', // USDC/WETH 1% pool
       stablecoinIsToken0: true,
       wrappedNativeAddress: '0x5300000000000000000000000000000000000004', // WETH
       minimumNativeLocked: BigDecimal.fromString('1'),
       stablecoinAddresses: [
-        '0xf1b23539620ffe7e3d80ed29028e4d9d9f79fa95', // USDC
+        '0x06eFdBFf2a14a7c8E15944D1F4A48F9F95F663A4', // USDC
+        '0xf55BEC9cafDbE8730f096Aa55dad6D22d44099Df', // USDT
       ],
       whitelistTokens: [
         '0x5300000000000000000000000000000000000004', // WETH
-        '0xf1b23539620ffe7e3d80ed29028e4d9d9f79fa95', // USDC
+        '0x06eFdBFf2a14a7c8E15944D1F4A48F9F95F663A4', // USDC
+        '0xf55BEC9cafDbE8730f096Aa55dad6D22d44099Df', // USDT
+        '0xcA77eB3fEFe3725Dc33bccB54eDEFc3D9f764f97', // DAI
+        '0xd29687c813d741e2f938f4ac377128810e217b1b', // SCR
       ],
       tokenOverrides: [],
       poolsToSkip: [],
