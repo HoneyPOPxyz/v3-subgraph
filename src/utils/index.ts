@@ -1,6 +1,6 @@
 import { BigDecimal, BigInt, ethereum } from '@graphprotocol/graph-ts'
 
-import { Transaction } from '../types/schema'
+import { Transaction } from '../../generated/schema'
 import { ONE_BD, ZERO_BD, ZERO_BI } from '../utils/constants'
 
 export function exponentToBigDecimal(decimals: BigInt): BigDecimal {

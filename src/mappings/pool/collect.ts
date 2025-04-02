@@ -1,7 +1,7 @@
 import { BigInt } from '@graphprotocol/graph-ts'
 
-import { Bundle, Collect, Factory, Pool, Token } from '../../types/schema'
-import { Collect as CollectEvent } from '../../types/templates/Pool/Pool'
+import { Bundle, Collect, Factory, Pool, Token } from '../../../generated/schema'
+import { Collect as CollectEvent } from '../../../generated/templates/Pool/Pool'
 import { convertTokenToDecimal, loadTransaction } from '../../utils'
 import { getSubgraphConfig, SubgraphConfig } from '../../utils/chains'
 import { ONE_BI } from '../../utils/constants'

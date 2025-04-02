@@ -1,7 +1,7 @@
 import { BigInt } from '@graphprotocol/graph-ts'
 
-import { Bundle, Factory, Mint, Pool, Tick, Token } from '../../types/schema'
-import { Mint as MintEvent } from '../../types/templates/Pool/Pool'
+import { Bundle, Factory, Mint, Pool, Tick, Token } from '../../../generated/schema'
+import { Mint as MintEvent } from '../../../generated/templates/Pool/Pool'
 import { convertTokenToDecimal, loadTransaction } from '../../utils'
 import { getSubgraphConfig, SubgraphConfig } from '../../utils/chains'
 import { ONE_BI } from '../../utils/constants'

@@ -1,10 +1,10 @@
 import { BigDecimal, BigInt } from '@graphprotocol/graph-ts'
 
-import { Bundle, Factory, Pool, Swap, Token, UserTradeStats } from '../../types/schema'
-import { Swap as SwapEvent } from '../../types/templates/Pool/Pool'
+import { Bundle, Factory, Pool, Swap, Token } from '../../../generated/schema'
+import { Swap as SwapEvent } from '../../../generated/templates/Pool/Pool'
 import { convertTokenToDecimal, loadTransaction, safeDiv } from '../../utils'
 import { getSubgraphConfig, SubgraphConfig } from '../../utils/chains'
-import { ONE_BI, ZERO_BD, ZERO_BI } from '../../utils/constants'
+import { ONE_BI, ZERO_BD } from '../../utils/constants'
 import {
   updatePoolDayData,
   updatePoolHourData,

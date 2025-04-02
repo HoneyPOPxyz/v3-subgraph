@@ -11,7 +11,7 @@ import {
   TokenHourData,
   UniswapDayData,
   UserTradeStats,
-} from './../types/schema'
+} from './../../generated/schema'
 import { ONE_BI, ZERO_BD, ZERO_BI } from './constants'
 
 /**
