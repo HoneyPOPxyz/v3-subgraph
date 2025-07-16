@@ -1,9 +1,9 @@
 import { Address, BigInt, ethereum } from '@graphprotocol/graph-ts'
 
-import { ERC20 } from '../../generated/Factory/ERC20'
-import { Pool as PoolABI } from '../../generated/Factory/Pool'
-import { Pool, Token } from '../../generated/schema'
-import { Pool as PoolTemplate } from '../../generated/templates'
+import { ERC20 } from '../types/Factory/ERC20'
+import { Pool as PoolABI } from '../types/Factory/Pool'
+import { Pool, Token } from '../types/schema'
+import { Pool as PoolTemplate } from '../types/templates'
 import { convertTokenToDecimal } from '../utils'
 import { ZERO_BD, ZERO_BI } from '../utils/constants'
 import { StaticTokenDefinition } from '../utils/staticTokenDefinition'

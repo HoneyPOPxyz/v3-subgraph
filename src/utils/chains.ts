@@ -466,15 +466,17 @@ export function getSubgraphConfig(): SubgraphConfig {
       wrappedNativeAddress: '0x5300000000000000000000000000000000000004', // WETH
       minimumNativeLocked: BigDecimal.fromString('1'),
       stablecoinAddresses: [
-        '0x06eFdBFf2a14a7c8E15944D1F4A48F9F95F663A4', // USDC
-        '0xf55BEC9cafDbE8730f096Aa55dad6D22d44099Df', // USDT
+        '0x06efdbff2a14a7c8e15944d1f4a48f9f95f663a4', // USDc
+        '0xf55bec9cafdbe8730f096aa55dad6d22d44099df', // USDT
+        '0xdb9e8f82d6d45fff803161f2a5f75543972b229a', // USDQ
       ],
       whitelistTokens: [
         '0x5300000000000000000000000000000000000004', // WETH
-        '0x06eFdBFf2a14a7c8E15944D1F4A48F9F95F663A4', // USDC
-        '0xf55BEC9cafDbE8730f096Aa55dad6D22d44099Df', // USDT
-        '0xcA77eB3fEFe3725Dc33bccB54eDEFc3D9f764f97', // DAI
+        '0x06efdbff2a14a7c8e15944d1f4a48f9f95f663a4', // USDC
+        '0xf55bec9cafdbe8730f096aa55dad6d22d44099df', // USDT
+        '0xca77eb3fefe3725dc33bccb54edefc3d9f764f97', // DAI
         '0xd29687c813d741e2f938f4ac377128810e217b1b', // SCR
+        '0xdb9e8f82d6d45fff803161f2a5f75543972b229a' // USDQ
       ],
       tokenOverrides: [],
       poolsToSkip: [],
