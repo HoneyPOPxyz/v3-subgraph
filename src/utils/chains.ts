@@ -476,7 +476,11 @@ export function getSubgraphConfig(): SubgraphConfig {
         '0xf55bec9cafdbe8730f096aa55dad6d22d44099df', // USDT
         '0xca77eb3fefe3725dc33bccb54edefc3d9f764f97', // DAI
         '0xd29687c813d741e2f938f4ac377128810e217b1b', // SCR
-        '0xdb9e8f82d6d45fff803161f2a5f75543972b229a' // USDQ
+        '0xdb9e8f82d6d45fff803161f2a5f75543972b229a', // USDQ
+        '0x3c1bca5a656e69edcd0d4e36bebb3fcdaca60cf1', // WBTC
+        '0x657e8c867d8b37dcc18fa4caead9c45eb088c642', // eBTC (ether.fi BTC)
+        '0x01f0a31698c4d065659b9bdc21b3610292a1c506', // weETH (ether.fi Wrapped eETH)
+        '0x939778d83b46b456224a33fb59630b11dec56663', // eUSD (ether.fi USD)
       ],
       tokenOverrides: [],
       poolsToSkip: [],
